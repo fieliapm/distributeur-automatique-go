@@ -33,7 +33,6 @@ func findExactPurchase(w http.ResponseWriter, r *http.Request) error {
 		return WrapApiError(ErrInvalidRequestBody, err)
 	}
 
-	fmt.Printf("moo: %v %d\n", exactPurchaseInput.Prices, exactPurchaseInput.Budget)
 	if !core.ValidatePrices(exactPurchaseInput.Prices) {
 		return ErrInvalidPrices
 	}
