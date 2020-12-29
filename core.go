@@ -6,36 +6,30 @@ import (
 	"time"
 )
 
-var ca = 0
-
-type CacheKey struct {
+type exactPurchaseSolutionKey struct {
 	Budget    int
 	ItemCount int
 }
-type CacheValue struct {
+type exactPurchaseSolutionValue struct {
 	SolutionCount int
 	Solutions     [][]int
 }
 
-type Cache map[CacheKey]CacheValue
+type exactPurchaseSolutionMap map[exactPurchaseSolutionKey]exactPurchaseSolutionValue
 
-var cache Cache
-
-func findExactPurchaseFast(prices []int, budget int, itemCount int) (int, [][]int) {
-	cacheKey := CacheKey{Budget: budget, ItemCount: itemCount}
-	cachedValue, ok := cache[cacheKey]
+func (solutionMap exactPurchaseSolutionMap) findExactPurchaseFast(prices []int, budget int, itemCount int) (int, [][]int) {
+	exactPurchaseSolutionKey := exactPurchaseSolutionKey{Budget: budget, ItemCount: itemCount}
+	exactPurchaseSolutiondValue, ok := solutionMap[exactPurchaseSolutionKey]
 	if ok {
-		return cachedValue.SolutionCount, cachedValue.Solutions
+		return exactPurchaseSolutiondValue.SolutionCount, exactPurchaseSolutiondValue.Solutions
 	} else {
-		solutionCount, solutions := findExactPurchaseSlow(prices, budget, itemCount)
-		cache[cacheKey] = CacheValue{SolutionCount: solutionCount, Solutions: solutions}
+		solutionCount, solutions := solutionMap.findExactPurchaseSlow(prices, budget, itemCount)
+		solutionMap[exactPurchaseSolutionKey] = exactPurchaseSolutionValue{SolutionCount: solutionCount, Solutions: solutions}
 		return solutionCount, solutions
 	}
 }
 
-func findExactPurchaseSlow(prices []int, budget int, itemCount int) (int, [][]int) {
-	ca++
-
+func (solutionMap exactPurchaseSolutionMap) findExactPurchaseSlow(prices []int, budget int, itemCount int) (int, [][]int) {
 	if itemCount <= 0 || budget <= 0 {
 		if budget == 0 {
 			return 1, [][]int{nil}
@@ -47,12 +41,12 @@ func findExactPurchaseSlow(prices []int, budget int, itemCount int) (int, [][]in
 	var solutionCount int = 0
 	var solutions [][]int
 
-	subSolutionCount, subSolutions := findExactPurchaseFast(prices, budget, itemCount-1)
+	subSolutionCount, subSolutions := solutionMap.findExactPurchaseFast(prices, budget, itemCount-1)
 	solutionCount += subSolutionCount
 	solutions = append(solutions, subSolutions...)
 
 	price := prices[itemCount-1]
-	subSolutionCount, subSolutions = findExactPurchaseFast(prices, budget-price, itemCount)
+	subSolutionCount, subSolutions = solutionMap.findExactPurchaseFast(prices, budget-price, itemCount)
 	solutionCount += subSolutionCount
 	for _, solution := range subSolutions {
 		newSolution := make([]int, len(solution)+1)
@@ -65,18 +59,18 @@ func findExactPurchaseSlow(prices []int, budget int, itemCount int) (int, [][]in
 }
 
 func FindExactPurchaseCache(prices []int, budget int) (int, [][]int) {
-	cache = make(Cache)
-	return findExactPurchaseFast(prices, budget, len(prices))
+	solutionMap := make(exactPurchaseSolutionMap)
+	return solutionMap.findExactPurchaseFast(prices, budget, len(prices))
 }
 
 func FindExactPurchaseDP(prices []int, budget int) (int, [][]int) {
-	dp := make([][]CacheValue, len(prices)+1)
+	dp := make([][]exactPurchaseSolutionValue, len(prices)+1)
 	for i, _ := range dp {
-		dp[i] = make([]CacheValue, budget+1)
+		dp[i] = make([]exactPurchaseSolutionValue, budget+1)
 	}
 
 	for i, price := range prices {
-		dp[i+1][0] = CacheValue{SolutionCount: 1, Solutions: [][]int{nil}}
+		dp[i+1][0] = exactPurchaseSolutionValue{SolutionCount: 1, Solutions: [][]int{nil}}
 		for j := 1; j <= budget; j++ {
 			dp[i+1][j] = dp[i][j]
 			if j >= price {
@@ -91,7 +85,6 @@ func FindExactPurchaseDP(prices []int, budget int) (int, [][]int) {
 				}
 				dp[i+1][j].Solutions = solutions
 			}
-			ca++
 		}
 	}
 	result := dp[len(prices)][budget]
@@ -100,8 +93,8 @@ func FindExactPurchaseDP(prices []int, budget int) (int, [][]int) {
 
 func FindExactPurchase(prices []int, budget int) int {
 	s := time.Now()
-	//solutionCount, solutions := FindExactPurchaseCache(prices, budget)
-	solutionCount, solutions := FindExactPurchaseDP(prices, budget)
+	solutionCount, solutions := FindExactPurchaseCache(prices, budget)
+	//solutionCount, solutions := FindExactPurchaseDP(prices, budget)
 	e := time.Now()
 	fmt.Println(float64(e.Sub(s)) / float64(time.Millisecond))
 
@@ -111,7 +104,7 @@ func FindExactPurchase(prices []int, budget int) int {
 		for _, value := range solution {
 			v += value
 		}
-		fmt.Printf("solution: %v\n", solution)
+		//fmt.Printf("solution: %v\n", solution)
 		if v != budget {
 			fmt.Printf("wrong: %v\n", solution)
 			fmt.Printf("fq: %d\n", v)
@@ -132,6 +125,5 @@ func main() {
 	//var prices = []int{2, 3, 5}
 	sort.Ints(prices)
 	count := FindExactPurchase(prices, 250)
-	fmt.Println(ca)
 	fmt.Println(count)
 }
