@@ -1,10 +1,4 @@
-package main
-
-import (
-	"fmt"
-	"sort"
-	"time"
-)
+package core
 
 type exactPurchaseSolutionKey struct {
 	Budget    int
@@ -91,39 +85,11 @@ func FindExactPurchaseDP(prices []int, budget int) (int, [][]int) {
 	return result.SolutionCount, result.Solutions
 }
 
-func FindExactPurchase(prices []int, budget int) int {
-	s := time.Now()
-	solutionCount, solutions := FindExactPurchaseCache(prices, budget)
-	//solutionCount, solutions := FindExactPurchaseDP(prices, budget)
-	e := time.Now()
-	fmt.Println(float64(e.Sub(s)) / float64(time.Millisecond))
-
-	var c int
-	for _, solution := range solutions {
-		var v int
-		for _, value := range solution {
-			v += value
+func ValidatePrices(prices []int) bool {
+	for _, price := range prices {
+		if price <= 0 {
+			return false
 		}
-		//fmt.Printf("solution: %v\n", solution)
-		if v != budget {
-			fmt.Printf("wrong: %v\n", solution)
-			fmt.Printf("fq: %d\n", v)
-		}
-
-		c++
-
 	}
-	if c != solutionCount {
-		fmt.Printf("fq2: %d\n", c)
-	}
-
-	return solutionCount
-}
-
-func main() {
-	var prices = []int{24, 29, 62, 37, 33, 22, 109, 38, 32, 75, 57, 30, 132, 19}
-	//var prices = []int{2, 3, 5}
-	sort.Ints(prices)
-	count := FindExactPurchase(prices, 250)
-	fmt.Println(count)
+	return true
 }
