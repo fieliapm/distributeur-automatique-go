@@ -2,12 +2,17 @@
     <head>
         <title>Distributeur Automatique</title>
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script type="text/javascript" src="distributeur-automatique.js"></script>
         <script type="text/javascript">
         $(document).ready(function(){
-            function formatSolution(data){
-                var solutionCount = data.solution_count;
-                var solutions = data.solutions;
-                var resultHTML = "<div>solution count: "+solutionCount.toString()+"</div>";
+            function formatSolution(result){
+                console.log("sss");
+                var maxPurchase = result.maxPurchase;
+                var solutions = result.solutions;
+                var solutionCount = solutions.length;
+                var resultHTML = "";
+                //resultHTML += "<div>maximal purchase price: "+maxPurchase.toString()+"</div>";
+                resultHTML += "<div>solution count: "+solutionCount.toString()+"</div>";
                 resultHTML += "<div>solutions:</div>";
                 for(var i in solutions){
                     var solutionStr = solutions[i].map(function(price){
@@ -29,11 +34,14 @@
                 });
                 var budget = parseInt(budgetStr);
 
-                var data = {prices: prices, budget: budget};
+                //var result = evaluateMaxPurchase(prices, budget);
+                //$("#solution").html(formatSolution(result));
+
+                var inputData = {prices: prices, budget: budget};
                 $.ajax({
                     type: "POST",
                     url: action_url,
-                    data: JSON.stringify(data),
+                    data: JSON.stringify(inputData),
                     success: function(data, textStatus, jqXHR){
                         $("#solution").html(formatSolution(data));
                     },

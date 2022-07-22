@@ -53,7 +53,7 @@ func findExactPurchase(w http.ResponseWriter, r *http.Request) error {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "template/index.htm")
+	http.ServeFile(w, r, "template/distributeur-automatique.htm")
 }
 
 func RunServer(port int) *http.Server {
